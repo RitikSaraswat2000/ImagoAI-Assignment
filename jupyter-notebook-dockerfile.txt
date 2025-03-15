@@ -1,0 +1,40 @@
+# Use official Python image as base
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    gcc \
+    git \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Jupyter, IPython and data science packages
+RUN pip install --no-cache-dir \
+    jupyter \
+    ipython \
+    numpy \
+    pandas \
+    matplotlib \
+    seaborn \
+    scikit-learn \
+    torch \
+    torchvision \
+    torchaudio
+
+# Create non-root user for better security
+RUN useradd -m jupyter
+USER jupyter
+
+# Create directory for notebooks
+RUN mkdir -p /home/jupyter/notebooks
+WORKDIR /home/jupyter/notebooks
+
+# Expose the port Jupyter will run on
+EXPOSE 8888
+
+# Start Jupyter notebook server
+CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
